@@ -26,6 +26,10 @@ commands:
       description: Reply to the last player who was messaged
       usage: /<command> <message>
       aliases: r
+   ignore:
+      description: Disallow specified players from pm'ing command sender
+      usage: /<command> <player>
+      aliases: i
 permissions:
    civchat.admin:
       description: Admin commands for civchat.

@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 
 import com.untamedears.citadel.Citadel;
 import com.untamedears.citadel.entity.Faction;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /*
  * Coded by Rourke750 & ibbignerd
@@ -19,6 +21,7 @@ public class Commands implements CommandExecutor {
     private CivChat civ;
     private ChatManager chatManager;
     private HashMap<String, String> replyList = new HashMap<>();
+    public HashMap<String, List<String>> ignoreList = new HashMap<>();
 
     public Commands(ChatManager chatManagerInstance, CivChat instance) {
         chatManager = chatManagerInstance;
@@ -43,6 +46,12 @@ public class Commands implements CommandExecutor {
                 }
                 return true;
             } else if (args.length == 1) {
+                if (ignoreList.containsKey(args[0])) {
+                    List<String> temp = ignoreList.get(args[0]);
+                    if (temp.contains(player.getName())) {
+                        return true;
+                    }
+                }
                 Player receiver = Bukkit.getPlayerExact(args[0]);
                 if (receiver == null) {
                     player.sendMessage(ChatColor.RED + "Error: Player is offline.");
@@ -65,6 +74,12 @@ public class Commands implements CommandExecutor {
                     sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
                     return true;
                 } else {
+                    if (ignoreList.containsKey(args[0])) {
+                        List<String> temp = ignoreList.get(args[0]);
+                        if (temp.contains(receiver.getName())) {
+                            return true;
+                        }
+                    }
                     StringBuilder message = new StringBuilder();
 
                     for (int i = 1; i < args.length; i++) {
@@ -96,6 +111,12 @@ public class Commands implements CommandExecutor {
                     return true;
                 } else {
                     if (args.length > 0) {
+                        if (ignoreList.containsKey(args[0])) {
+                            List<String> temp = ignoreList.get(args[0]);
+                            if (temp.contains(player)) {
+                                return true;
+                            }
+                        }
                         StringBuilder message = new StringBuilder();
 
                         for (int i = 1; i < args.length; i++) {
@@ -144,7 +165,7 @@ public class Commands implements CommandExecutor {
         if (label.equalsIgnoreCase("civchat")) {
             if (sender.hasPermission("civchat.admin")) {
                 if (args.length < 1) {
-                    sender.sendMessage("Usage: /civchat <save/reload>");
+                    sender.sendMessage(ChatColor.RED + "Usage: /civchat <save/reload>");
                     return true;
                 }
 
@@ -214,9 +235,31 @@ public class Commands implements CommandExecutor {
             }
             return true;
         }
-        /*
-         * aliases
-         */
+
+        if (label.equalsIgnoreCase("ignore")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("You have to be a player to use that command!");
+                return true;
+            }
+
+            if (args.length == 0) {
+                sender.sendMessage("Usage: /ignore <player>");
+                return true;
+            } else if (args.length > 0) {
+                if (!ignoreList.containsKey(sender.getName())) {
+                    List<String> toAdd = Arrays.asList(args[0]);
+                    ignoreList.put(sender.getName(), toAdd);
+                } else {
+                    List<String> temp = ignoreList.get(sender.getName());
+                    List<String> toAdd = Arrays.asList(args[0]);
+                    toAdd.add(temp.toString());
+                    ignoreList.put(sender.getName(), toAdd);
+                }
+
+            }
+            return true;
+        }
+
         if (label.equalsIgnoreCase("chat")) {
             String chatPrefix = ChatColor.DARK_RED + "===" + ChatColor.YELLOW + "CivChat" + ChatColor.DARK_RED + "=========================\n";
             if (args.length == 0) {
@@ -279,6 +322,12 @@ public class Commands implements CommandExecutor {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
                             + " Version 0.95 \n"
                             + " Coded by: Rourke750 and ibbignerd");
+                } else if (args[0].equalsIgnoreCase("ignore")) {
+                    sender.sendMessage(chatPrefix + ChatColor.WHITE
+                            + " /ignore <player>\n"
+                            + " Stop receiving personal messages from player\n"
+                            + " Running /ignore <player> again, will allow personal\n" 
+                            + "   messages from player again");
                 }
                 return true;
             }
