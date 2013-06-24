@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 
 import com.untamedears.citadel.Citadel;
 import com.untamedears.citadel.entity.Faction;
-import org.bukkit.Material;
 
 /*
  * Coded by ibbignerd
@@ -49,6 +48,7 @@ public class ChatManager {
     private String replacement = "abcdefghijklmnopqrstuvwxyz";
     private HashMap<Player, Long> shoutList = new HashMap<>();
     public long shoutCool;
+    public int shoutHunger;
 
     public ChatManager(CivChat pluginInstance) {
         plugin = pluginInstance;
@@ -60,6 +60,7 @@ public class ChatManager {
         shout = config.getBoolean("chat.shout.enabled", true);
         shoutChar = config.getString("chat.shout.char", "!");
         shoutDist = config.getInt("chat.shout.distanceAdded", 100);
+        shoutHunger = config.getInt("chat.shout.hungerreduced", 4);
         shoutCool = config.getLong("chat.shout.cooldown", 10) * 1000;
         whisper = config.getBoolean("chat.whisper.enabled", true);
         whisperChar = config.getString("chat.whisper.char", "#");
@@ -104,13 +105,16 @@ public class ChatManager {
 
             if (shoutList.get(player) == null) {
                 Float sat = player.getSaturation();
-                if(sat > 0){
-                    sat -= 1;
-                    if(sat <= 0){
+                if (sat > 0) {
+                    sat -= shoutHunger;
+                    if (sat <= 0) {
                         player.setSaturation(0);
                         player.setFoodLevel(player.getFoodLevel() - Integer.parseInt(sat + ""));
+                    } else {
+                        player.setSaturation(player.getSaturation() - sat);
                     }
-                    player.setSaturation(z);
+                } else {
+                    player.setFoodLevel(player.getFoodLevel() - shoutHunger);
                 }
                 chatrange += shoutDist;
                 shoutList.put(player, System.currentTimeMillis());

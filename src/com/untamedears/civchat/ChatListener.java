@@ -12,6 +12,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+/*
+ * Coded by Rourke750 & ibbignerd
+ */
 public class ChatListener implements Listener {
 
     private ChatManager chat;
@@ -60,7 +63,7 @@ public class ChatListener implements Listener {
                 player.sendMessage(ChatColor.GOLD + "The player you were chatting with has gone offline. You are now in regular chat.");
             }
         }
-        
+
         chat.sendPlayerBroadcast(player, message, event.getRecipients());
     }
 }

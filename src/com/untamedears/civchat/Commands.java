@@ -87,7 +87,7 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("You have to be a player to use that command!");
                 return true;
             }
-            
+
             String player = sender.getName();
             if (replyList.containsKey(player)) {
                 if (replyList.get(player) == null) {
@@ -255,19 +255,19 @@ public class Commands implements CommandExecutor {
                 } else if (args[0].equalsIgnoreCase("garble") && chatManager.garbleEnabled) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
                             + " Depending on the range, chat will be more garbled");
-                } else if (args[0].equalsIgnoreCase("groupchat")){
+                } else if (args[0].equalsIgnoreCase("groupchat")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
-                            + " /groupchat <citadel group> <message>\n" 
+                            + " /groupchat <citadel group> <message>\n"
                             + " Send a message to everyone in the citadel group");
                 } else if (args[0].equalsIgnoreCase("alias")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
-                            + " /groupchat [g, group]\n" 
-                            + " /tell [message, msg, m, pm]\n" 
-                            + " /chat [chathelp, ch]\n" 
+                            + " /groupchat [g, group]\n"
+                            + " /tell [message, msg, m, pm]\n"
+                            + " /chat [chathelp, ch]\n"
                             + " /reply [r]\n");
                 } else if (args[0].equalsIgnoreCase("tell")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
-                            + " /tell <player> <message>\n" 
+                            + " /tell <player> <message>\n"
                             + "   Send one message to the player\n"
                             + " /tell <player>\n"
                             + "   Create a channel with player. All regular chat will\n"
@@ -275,11 +275,12 @@ public class Commands implements CommandExecutor {
                             + " /exit\n"
                             + "   Stop the channel with player. All regular chat will\n"
                             + "    go to regular chat");
-                } else if(args[0].equalsIgnoreCase("info")) {
+                } else if (args[0].equalsIgnoreCase("info")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
-                            + " Version " + civ.pdf.getVersion() + " \n"
-                            + " Coded by: " + civ.pdf.getAuthors());
+                            + " Version 0.95 \n"
+                            + " Coded by: Rourke750 and ibbignerd");
                 }
+                return true;
             }
         }
         return true;

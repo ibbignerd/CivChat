@@ -12,13 +12,13 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Coded by Rourke750 & ibbignerd
  */
 public class CivChat extends JavaPlugin implements Listener {
-    
+
     public PluginDescriptionFile pdf = this.getDescription();
     private ChatManager chat = null;
     private ChatListener cl = null;
     private FileConfiguration config = null;
     public File record = null;
-    
+
     public void onEnable() {
 //        String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
 //        record = new File(config.getCurrentPath() + "\\ChatLogs\\" + date +".txt");
@@ -26,6 +26,10 @@ public class CivChat extends JavaPlugin implements Listener {
 //            String[] archive = config.get;
 //            File f = new File(config.getCurrentPath() + "\\ChatLogs\\" + date +".zip");
 //        }
+//        File folder = new File(config.getCurrentPath() + "/ChatLogs/");
+//        listFilesForFolder(folder);
+//        String curr = File.
+//        record = File(config.getCurrentPath() + "/ChatLogs/" + curr + ".txt");
         config = getConfig();
         initConfig();
         this.saveConfig();
@@ -38,6 +42,19 @@ public class CivChat extends JavaPlugin implements Listener {
             getCommand(command).setExecutor(commands);
         }
     }
+
+//    public String[] listFilesForFolder(final File folder) {
+//        String files = "";
+//        for (final File fileEntry : folder.listFiles()) {
+//            if (files.equals("")) {
+//                files += fileEntry.getName();
+//            }else{
+//                files += "/ " + fileEntry.getName();
+//            }
+//        }
+//        String[] filelist = files.split("/ ");
+//        return filelist;
+//    }
 
     public void initConfig() {
         config.options().header("Authors: Rourke750, ibbignerd\n"
@@ -52,6 +69,7 @@ public class CivChat extends JavaPlugin implements Listener {
                 + " shout: Expand max range based on number of shout chars\n"
                 + "   char: character uesd at the beginning of the message\n"
                 + "   distanceAdded: Amount added to the max range to make chat go further\n"
+                + "   hungerReduced: Amount of hunger reduced per shout\n"
                 + "   cooldown: Amount of time in seconds between shouts.\n"
                 + " whisper: Reduced chat range when whisper char is used\n"
                 + "   char: Character used at the beginning of the message\n"
@@ -86,6 +104,9 @@ public class CivChat extends JavaPlugin implements Listener {
         }
         if (!config.contains("chat.shout.distanceAdded")) {
             config.set("chat.shout.distanceAdded", 300);
+        }
+        if (!config.contains("chat.shout.hungerreduced")) {
+            config.set("chat.shout.hungerreduced", 4);
         }
         if (!config.contains("chat.shout.cooldown")) {
             config.set("chat.shout.cooldown", 10);
