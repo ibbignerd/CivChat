@@ -249,11 +249,20 @@ public class Commands implements CommandExecutor {
                 if (!ignoreList.containsKey(sender.getName())) {
                     List<String> toAdd = Arrays.asList(args[0]);
                     ignoreList.put(sender.getName(), toAdd);
+                    sender.sendMessage(ChatColor.RED + args[0] + ChatColor.YELLOW + " can no longer PM you");
                 } else {
                     List<String> temp = ignoreList.get(sender.getName());
                     List<String> toAdd = Arrays.asList(args[0]);
-                    toAdd.add(temp.toString());
-                    ignoreList.put(sender.getName(), toAdd);
+                    if (toAdd.contains(args[0])) {
+                        toAdd.remove(args[0]);//unsupportedOperationException
+                        sender.sendMessage(ChatColor.GREEN + args[0] + ChatColor.YELLOW + " can now PM you");
+                        return true;
+                    } else {
+                        toAdd.add(temp.toString());
+                        ignoreList.put(sender.getName(), toAdd);
+                        sender.sendMessage(ChatColor.RED + args[0] + ChatColor.YELLOW + " can no longer PM you");
+                        return true;
+                    }
                 }
 
             }
@@ -320,13 +329,13 @@ public class Commands implements CommandExecutor {
                             + "    go to regular chat");
                 } else if (args[0].equalsIgnoreCase("info")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
-                            + " Version 0.95 \n"
+                            + " Version 0.99 \n"
                             + " Coded by: Rourke750 and ibbignerd");
                 } else if (args[0].equalsIgnoreCase("ignore")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
                             + " /ignore <player>\n"
                             + " Stop receiving personal messages from player\n"
-                            + " Running /ignore <player> again, will allow personal\n" 
+                            + " Running /ignore <player> again, will allow personal\n"
                             + "   messages from player again");
                 }
                 return true;
