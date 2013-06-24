@@ -1,7 +1,7 @@
 name: CivChat
 main: com.untamedears.civchat.CivChat
-version: .95
-author: Rourke750, ibbignerd
+version: 0.95
+authors: [Rourke750, ibbignerd]
 commands:
    tell:
       description: Sends a player a message.
