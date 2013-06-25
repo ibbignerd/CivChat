@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import com.untamedears.citadel.Citadel;
 import com.untamedears.citadel.entity.Faction;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -224,7 +225,7 @@ public class ChatManager {
         Player player1 = Bukkit.getPlayer(player);
         Collection<Player> players = Citadel.getMemberManager().getOnlinePlayers();
         String chat = message.toString();
-        player1.sendMessage(ChatColor.GOLD + "To group" + group.getName() + ": " + chat);
+        player1.sendMessage(ChatColor.DARK_AQUA + "To group" + group.getName() + ": " + chat);
         for (Player reciever : players) {
             if (group.isMember(reciever.getName())
                     && group.isFounder(reciever.getName())
@@ -234,7 +235,7 @@ public class ChatManager {
                 if (reciever.getName() == player1.getName()) {
                     continue;
                 } else {
-                    reciever.sendMessage(ChatColor.GOLD + "Group " + group.getName() + ", from " + player + ": " + chat);
+                    reciever.sendMessage(ChatColor.DARK_AQUA + "Group " + group.getName() + ", from " + player + ": " + chat);
                 }
             }
         }
@@ -286,14 +287,15 @@ public class ChatManager {
     }
 
     public void tL(Player sender, String type, String message) {
-        Date date = new Date();
+        String date = new SimpleDateFormat("dd-MM HH:MM:SS").format(new Date());
         String name = sender.getName();
-        String loc = sender.getLocation().getX() + ", " + sender.getLocation().getY() + ", " + sender.getLocation().getZ();
-        String textLine = "[" + date + "] [" + loc + "] [" + type + "] [" + name + "]" + message;
-        sender.sendMessage("written");
+        String loc = (int) sender.getLocation().getX() + ", " + (int) sender.getLocation().getY() + ", " + (int) sender.getLocation().getZ();
+        String textLine = "[" + date + "] [" + loc + "] [" + type + "] [" + name + "] " + message;
+        
         try {
             plugin.writer.write(textLine);
             plugin.writer.newLine();
+            plugin.writer.flush();
         } catch (IOException ex) {
             Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, null, ex);
         }

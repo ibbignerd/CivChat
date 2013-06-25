@@ -29,7 +29,7 @@ public class Commands implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (label.equalsIgnoreCase("tell")) {
+        if (label.equalsIgnoreCase("tell") || label.equalsIgnoreCase("msg") || label.equalsIgnoreCase("m") || label.equalsIgnoreCase("message")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You have to be a player to use that command!");
                 return true;
@@ -99,7 +99,7 @@ public class Commands implements CommandExecutor {
             return true;
         }
 
-        if (label.equalsIgnoreCase("reply")) {
+        if (label.equalsIgnoreCase("reply") || label.equalsIgnoreCase("r")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You have to be a player to use that command!");
                 return true;
@@ -132,7 +132,7 @@ public class Commands implements CommandExecutor {
                         String receiver = replyList.get(player);
                         Bukkit.getPlayer(player).sendMessage(ChatColor.DARK_PURPLE + "To " + receiver + ": " + message);
                         Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_PURPLE + "From " + player + ": " + message);
-                        chatManager.tL(Bukkit.getPlayerExact(player), "PM", "To " + receiver + ": " + message.toString());
+                        chatManager.tL(Bukkit.getPlayerExact(player), "P Message", "To " + receiver + ": " + message.toString());
                     } else {
                         Bukkit.getPlayer(player).sendMessage(ChatColor.DARK_PURPLE + "You will message " + ChatColor.YELLOW + replyList.get(player));
                     }
@@ -143,7 +143,7 @@ public class Commands implements CommandExecutor {
             return true;
         }
 
-        if (label.equalsIgnoreCase("exit")) {
+        if (label.equalsIgnoreCase("exit") || label.equalsIgnoreCase("e")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You have to be a player to use that command!");
                 return true;
@@ -188,7 +188,7 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "You Do not have Permissions civchat.admin");
             }
         }
-        if (label.equalsIgnoreCase("groupchat")) {
+        if (label.equalsIgnoreCase("groupchat") || label.equalsIgnoreCase("group") || label.equalsIgnoreCase("g")) {
 
             Player player = (Player) sender;
             StringBuilder message = new StringBuilder();
@@ -235,13 +235,13 @@ public class Commands implements CommandExecutor {
                 }
                 chatManager.GroupChat(group, message, sender.getName());
 
-                chatManager.tL(player, "GroupChat", group.toString() + "->" + message.toString());
+                chatManager.tL(player, "GroupChat", group.toString() + " -> " + message.toString());
                 return true;
             }
             return true;
         }
 
-        if (label.equalsIgnoreCase("ignore")) {
+        if (label.equalsIgnoreCase("ignore") || label.equalsIgnoreCase("ig")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You have to be a player to use that command!");
                 return true;
@@ -274,10 +274,10 @@ public class Commands implements CommandExecutor {
             return true;
         }
 
-        if (label.equalsIgnoreCase("chat")) {
+        if (label.equalsIgnoreCase("chat") || label.equalsIgnoreCase("chathelp") || label.equalsIgnoreCase("ch")) {
             String chatPrefix = ChatColor.DARK_RED + "===" + ChatColor.YELLOW + "CivChat" + ChatColor.DARK_RED + "=========================\n";
             if (args.length == 0) {
-                String help = " /chat range\n /chat groupchat\n /chat tell\n";
+                String help = "/chat range\n /chat groupchat\n /chat tell\n";
                 if (chatManager.shout) {
                     help += " /chat shout\n";
                 }
@@ -296,12 +296,12 @@ public class Commands implements CommandExecutor {
                 if (args[0].equalsIgnoreCase("shout") && chatManager.shout) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
                             + " By putting a \"" + chatManager.shoutChar + "\" in front of your message, chat range\n"
-                            + "  is extended " + chatManager.shoutDist + "m\n"
+                            + "   is extended " + chatManager.shoutDist + "m\n"
                             + " There is a " + chatManager.shoutCool / 1000 + " second cooldown");
                 } else if (args[0].equalsIgnoreCase("whisper") && chatManager.whisper) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
                             + " By putting a \"" + chatManager.whisperChar + "\" in front of your message, chat range\n"
-                            + "  is reduced to " + chatManager.whisperDist + "m\n");
+                            + "   is reduced to " + chatManager.whisperDist + "m\n");
                 } else if (args[0].equalsIgnoreCase("height") && chatManager.yvar) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
                             + " The higher you are the farther your messages can be heard");
@@ -328,13 +328,13 @@ public class Commands implements CommandExecutor {
                             + "   Send one message to the player\n"
                             + " /tell <player>\n"
                             + "   Create a channel with player. All regular chat will\n"
-                            + "    go to player"
+                            + "     go to player"
                             + " /exit\n"
                             + "   Stop the channel with player. All regular chat will\n"
-                            + "    go to regular chat");
+                            + "     go to regular chat");
                 } else if (args[0].equalsIgnoreCase("info")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
-                            + " Version 0.99 \n"
+                            + " Version 0.96 \n"
                             + " Coded by: Rourke750 and ibbignerd");
                 } else if (args[0].equalsIgnoreCase("ignore")) {
                     sender.sendMessage(chatPrefix + ChatColor.WHITE
@@ -342,6 +342,8 @@ public class Commands implements CommandExecutor {
                             + " Stop receiving personal messages from player\n"
                             + " Running /ignore <player> again, will allow personal\n"
                             + "   messages from player again");
+                }else {
+                    sender.sendMessage(ChatColor.RED + args[0] + " is not a valid argument");
                 }
                 return true;
             }
