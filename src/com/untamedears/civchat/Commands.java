@@ -11,6 +11,7 @@ import com.untamedears.citadel.Citadel;
 import com.untamedears.citadel.entity.Faction;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /*
@@ -107,7 +108,7 @@ public class Commands implements CommandExecutor {
 
             String player = sender.getName();
             if (replyList.containsKey(player)) {
-                if (replyList.get(player) == null) {
+                if (Bukkit.getPlayerExact(replyList.get(player)) == null) {
                     sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
                     replyList.remove(player);
                     return true;
@@ -252,14 +253,19 @@ public class Commands implements CommandExecutor {
                 return true;
             } else if (args.length > 0) {
                 if (!ignoreList.containsKey(sender.getName())) {
+                    if (Bukkit.getPlayer(args[0]) == null) {
+                        sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
+                        return true;
+                    }
                     List<String> toAdd = Arrays.asList(args[0]);
                     ignoreList.put(sender.getName(), toAdd);
                     sender.sendMessage(ChatColor.RED + args[0] + ChatColor.YELLOW + " can no longer PM you");
                 } else {
                     List<String> temp = ignoreList.get(sender.getName());
-                    List<String> toAdd = Arrays.asList(args[0]);
+                    List<String> toAdd = new LinkedList<>(Arrays.asList(args[0]));
+//                    List<String> toAdd = Arrays.asList();
                     if (toAdd.contains(args[0])) {
-                        toAdd.remove(args[0]);//unsupportedOperationException
+                        toAdd.remove(args[0]);
                         sender.sendMessage(ChatColor.GREEN + args[0] + ChatColor.YELLOW + " can now PM you");
                         return true;
                     } else {
@@ -342,7 +348,7 @@ public class Commands implements CommandExecutor {
                             + " Stop receiving personal messages from player\n"
                             + " Running /ignore <player> again, will allow personal\n"
                             + "   messages from player again");
-                }else {
+                } else {
                     sender.sendMessage(ChatColor.RED + args[0] + " is not a valid argument");
                 }
                 return true;

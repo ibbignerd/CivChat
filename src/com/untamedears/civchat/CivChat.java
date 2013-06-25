@@ -2,13 +2,11 @@ package com.untamedears.civchat;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
@@ -39,37 +37,23 @@ public class CivChat extends JavaPlugin implements Listener {
         this.saveConfig();
 
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-        String dir;
-        dir = this.getDataFolder() + File.separator + "ChatLogs" + File.separator;
+        String dir = this.getDataFolder() + File.separator + "ChatLogs" + File.separator;
         Boolean a = (new File(dir).mkdirs());
-        if (a) {
-            Logger.getLogger(CivChat.class.getName()).log(Level.WARNING, "Directory Created", "");
-        } else {
-            Logger.getLogger(CivChat.class.getName()).log(Level.WARNING, "Directory NOT Created", "");
-        }
         record = new File(dir);
-        File[] filtered = record.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".txt");
-            }
-        });
-        if (record.list() != null && record.list().length > config.getInt("chat.fileManagement.filesToZip", 30)) {
-            try {
-                FileOutputStream fos = new FileOutputStream(dir + date + ".zip");
-                ZipOutputStream zos = new ZipOutputStream(fos);
-                for (File files : filtered) {
-                    ZipEntry ze = new ZipEntry(files.toString());
-                    zos.putNextEntry(ze);
-                    zos.closeEntry();
-                }
-                zos.close();
-            } catch (Exception e) {
-                ;
-            }
-        }
+
+        fileManagement(date, dir);
+
         try {
-            PrintWriter fstream = new PrintWriter(dir + date + ".txt");
-            writer = new BufferedWriter(fstream);
+            File existing = new File(dir + date + ".txt");
+            if (existing.exists()) {
+                FileWriter fw = new FileWriter(existing.getAbsoluteFile(), true);
+                writer = new BufferedWriter(fw);
+                Logger.getLogger(CivChat.class.getName()).log(Level.INFO, "Existing file", "");
+            } else {
+                Logger.getLogger(CivChat.class.getName()).log(Level.INFO, "Making a new file", "");
+                PrintWriter fstream = new PrintWriter(dir + date + ".txt");
+                writer = new BufferedWriter(fstream);
+            }
         } catch (IOException ex) {
             Logger.getLogger(CivChat.class.getName()).log(Level.WARNING, "File Failed" + ex, "");
         }
@@ -80,7 +64,7 @@ public class CivChat extends JavaPlugin implements Listener {
             writer.newLine();
             writer.flush();
         } catch (IOException ex) {
-            Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, "OOPS", ex);
+            Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, "Could not write to file", ex);
         }
 
         chat = new ChatManager(this);
@@ -95,9 +79,59 @@ public class CivChat extends JavaPlugin implements Listener {
 
     public void onDisable() {
         try {
+            writer.write("Server closed at " + new Date());
+            writer.newLine();
+            writer.newLine();
+            writer.flush();
             writer.close();
         } catch (IOException ex) {
             Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void fileManagement(String date, String dir) {
+        File[] filtered = record.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".txt");
+            }
+        });
+        Logger.getLogger(CivChat.class.getName()).log(Level.INFO, (filtered.length) + "", "");
+        if (filtered != null && filtered.length > config.getInt("chat.fileManagement.filesToZip", 15)) {
+            try {
+                Logger.getLogger(CivChat.class.getName()).log(Level.INFO, "Zipping them up", "");
+                FileOutputStream fos = new FileOutputStream(dir + date + ".zip");
+                ZipOutputStream zos = new ZipOutputStream(fos);
+                for (File files : filtered) {
+                    ZipEntry ze = new ZipEntry(files.toString());
+                    zos.putNextEntry(ze);
+                    zos.closeEntry();
+                    files.delete();
+                }
+                zos.close();
+            } catch (Exception e) {
+                ;
+            }
+        }
+        File[] zipList = record.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".zip");
+            }
+        });
+        Logger.getLogger(CivChat.class.getName()).log(Level.INFO, "zipList.length = " + zipList.length, "");
+        if (zipList != null && zipList.length > config.getInt("chat.fileManagement.maxNumberOfZips", 4)) {
+            Logger.getLogger(CivChat.class.getName()).log(Level.INFO, "Deleting zips", "");
+            long holder = 0;
+            long tester;
+            File toDelete = zipList[0];
+            for (File file : zipList) {
+                tester = file.lastModified();
+                if (tester < holder) {
+                    holder = tester;
+                    toDelete = file;
+                }
+            }
+            toDelete.delete();
+            Logger.getLogger(CivChat.class.getName()).log(Level.INFO, toDelete.getName(), "");
         }
     }
 
@@ -127,7 +161,10 @@ public class CivChat extends JavaPlugin implements Listener {
                 + "   color: Color of chat for this range\n"
                 + " maxrange: Max distance a player can be heard");
         if (!config.contains("chat.fileManagement.filesToZip")) {
-            config.set("chat.fileManagement.filesToZip", 30);
+            config.set("chat.fileManagement.filesToZip", 15);
+        }
+        if (!config.contains("chat.fileManagement.maxNumberOfZips")) {
+            config.set("chat.fileManagement.maxNumberOfZips", 4);
         }
         if (!config.contains("chat.garblevariation")) {
             config.set("chat.variation", 5);

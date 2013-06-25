@@ -2,10 +2,8 @@ package com.untamedears.civchat;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -125,7 +123,8 @@ public class ChatManager {
                 chatrange += shoutDist;
                 shoutList.put(player, System.currentTimeMillis());
             } else {
-                player.sendMessage(ChatColor.RED + "Shout under cooldown, please wait " + ((((shoutList.get(player) - System.currentTimeMillis()) + shoutCool) / 1000) + 1) + " seconds");
+                player.sendMessage(ChatColor.RED + "Shout under cooldown, please wait " 
+                        + ((((shoutList.get(player) - System.currentTimeMillis()) + shoutCool) / 1000) + 1) + " seconds");
             }
         }
 
@@ -287,11 +286,11 @@ public class ChatManager {
     }
 
     public void tL(Player sender, String type, String message) {
-        String date = new SimpleDateFormat("dd-MM HH:MM:SS").format(new Date());
+        String date = new SimpleDateFormat("dd-MM HH:MM:ss").format(new Date());
         String name = sender.getName();
         String loc = (int) sender.getLocation().getX() + ", " + (int) sender.getLocation().getY() + ", " + (int) sender.getLocation().getZ();
         String textLine = "[" + date + "] [" + loc + "] [" + type + "] [" + name + "] " + message;
-        
+
         try {
             plugin.writer.write(textLine);
             plugin.writer.newLine();
