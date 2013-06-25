@@ -1,8 +1,19 @@
 package com.untamedears.civchat;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -18,21 +29,53 @@ public class CivChat extends JavaPlugin implements Listener {
     private ChatListener cl = null;
     private FileConfiguration config = null;
     public File record = null;
+    public BufferedWriter writer;
 
     public void onEnable() {
-//        String date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
-//        record = new File(config.getCurrentPath() + "\\ChatLogs\\" + date +".txt");
-//        if(record.list().length > 30){
-//            String[] archive = config.get;
-//            File f = new File(config.getCurrentPath() + "\\ChatLogs\\" + date +".zip");
-//        }
-//        File folder = new File(config.getCurrentPath() + "/ChatLogs/");
-//        listFilesForFolder(folder);
-//        String curr = File.
-//        record = File(config.getCurrentPath() + "/ChatLogs/" + curr + ".txt");
         config = getConfig();
         initConfig();
         this.saveConfig();
+
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String dir;
+        dir = this.getDataFolder() + File.separator + "ChatLogs" + File.separator;
+        Boolean a = (new File(dir).mkdirs());
+        if (a) {
+            Logger.getLogger(CivChat.class.getName()).log(Level.WARNING, "Directory Created", "");
+        } else {
+            Logger.getLogger(CivChat.class.getName()).log(Level.WARNING, "Directory NOT Created", "");
+        }
+        record = new File(dir + date + ".txt");
+        if (record.list() != null && record.list().length > 2) {
+
+            try {
+                File[] archive = record.listFiles();
+                FileOutputStream fos = new FileOutputStream(dir + date + ".zip");
+                ZipOutputStream zos = new ZipOutputStream(fos);
+                for (File files : archive) {
+                    ZipEntry ze = new ZipEntry(dir + files);
+                    zos.putNextEntry(ze);
+                }
+                File f = new File(dir + date + ".zip");
+            } catch (Exception e) {
+                ;
+            }
+        }
+        try {
+            PrintWriter fstream = new PrintWriter(dir + date + ".txt");
+            writer = new BufferedWriter(fstream);
+        } catch (IOException ex) {
+            Logger.getLogger(CivChat.class.getName()).log(Level.WARNING, "File Failed" + ex, "");
+        }
+
+        try {
+            writer.write("Chat log for " + new Date());
+            writer.newLine();
+            writer.newLine();
+        } catch (IOException ex) {
+            Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, "OOPS", ex);
+        }
+
         chat = new ChatManager(this);
         cl = new ChatListener(chat);
         registerEvents();
@@ -43,18 +86,13 @@ public class CivChat extends JavaPlugin implements Listener {
         }
     }
 
-//    public String[] listFilesForFolder(final File folder) {
-//        String files = "";
-//        for (final File fileEntry : folder.listFiles()) {
-//            if (files.equals("")) {
-//                files += fileEntry.getName();
-//            }else{
-//                files += "/ " + fileEntry.getName();
-//            }
-//        }
-//        String[] filelist = files.split("/ ");
-//        return filelist;
-//    }
+    public void onDisable() {
+        try {
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public void initConfig() {
         config.options().header("Authors: Rourke750, ibbignerd\n"

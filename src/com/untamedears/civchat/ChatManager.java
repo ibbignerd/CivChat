@@ -15,6 +15,10 @@ import org.bukkit.entity.Player;
 
 import com.untamedears.citadel.Citadel;
 import com.untamedears.citadel.entity.Faction;
+import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * Coded by ibbignerd
@@ -75,7 +79,6 @@ public class ChatManager {
         chatDist2 = chatmax - config.getDouble("chat.range.2.distance", 50);
         garble2 = config.getInt("chat.range.2.garble", 0);
         color2 = config.getString("color.range.2.color", "DARK_GRAY");
-
     }
 
     public void sendPrivateMessage(Player from, Player to, String message) {
@@ -84,6 +87,8 @@ public class ChatManager {
     }
 
     public void sendPlayerBroadcast(Player player, String message, Set<Player> receivers) {
+        tL(player, "Broadcast", message);
+
         Location location = player.getLocation();
         int x = location.getBlockX();
         int y = location.getBlockY();
@@ -277,6 +282,20 @@ public class ChatManager {
     public void removeGroupTalk(String player) {
         if (groupchat.containsKey(player)) {
             groupchat.remove(player);
+        }
+    }
+
+    public void tL(Player sender, String type, String message) {
+        Date date = new Date();
+        String name = sender.getName();
+        String loc = sender.getLocation().getX() + ", " + sender.getLocation().getY() + ", " + sender.getLocation().getZ();
+        String textLine = "[" + date + "] [" + loc + "] [" + type + "] [" + name + "]" + message;
+        sender.sendMessage("written");
+        try {
+            plugin.writer.write(textLine);
+            plugin.writer.newLine();
+        } catch (IOException ex) {
+            Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
