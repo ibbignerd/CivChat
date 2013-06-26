@@ -52,6 +52,7 @@ public class ChatManager {
     private HashMap<Player, Long> shoutList = new HashMap<>();
     public long shoutCool;
     public int shoutHunger;
+    private String shoutColor;
 
     public ChatManager(CivChat pluginInstance) {
         plugin = pluginInstance;
@@ -63,6 +64,7 @@ public class ChatManager {
         shout = config.getBoolean("chat.shout.enabled", true);
         shoutChar = config.getString("chat.shout.char", "!");
         shoutDist = config.getInt("chat.shout.distanceAdded", 100);
+        shoutColor = config.getString("chat.shout.color", "WHITE");
         shoutHunger = config.getInt("chat.shout.hungerreduced", 4);
         shoutCool = config.getLong("chat.shout.cooldown", 10) * 1000;
         whisper = config.getBoolean("chat.whisper.enabled", true);
@@ -81,8 +83,8 @@ public class ChatManager {
     }
 
     public void sendPrivateMessage(Player from, Player to, String message) {
-        from.sendMessage(ChatColor.DARK_PURPLE + "To " + to.getName() + ": " + message);
-        to.sendMessage(ChatColor.DARK_PURPLE + "From " + from.getName() + ": " + message);
+        from.sendMessage(ChatColor.LIGHT_PURPLE + "To " + to.getName() + ": " + message);
+        to.sendMessage(ChatColor.LIGHT_PURPLE + "From " + from.getName() + ": " + message);
     }
 
     public void sendPlayerBroadcast(Player player, String message, Set<Player> receivers) {
@@ -96,6 +98,7 @@ public class ChatManager {
         boolean whispering = false;
         double chatrange = chatmax;
         double added = 0;
+        boolean shouting = false;
 
         if (yvar && !message.startsWith(whisperChar) && y > ynogarb) {
             added = Math.pow(1.1, (y - ynogarb) / 14) * (y - ynogarb);
@@ -122,8 +125,9 @@ public class ChatManager {
                 }
                 chatrange += shoutDist;
                 shoutList.put(player, System.currentTimeMillis());
+                shouting = true;
             } else {
-                player.sendMessage(ChatColor.RED + "Shout under cooldown, please wait " 
+                player.sendMessage(ChatColor.RED + "Shout under cooldown, please wait "
                         + ((((shoutList.get(player) - System.currentTimeMillis()) + shoutCool) / 1000) + 1) + " seconds");
             }
         }
@@ -170,6 +174,9 @@ public class ChatManager {
             if (chatdist <= chatrange) {
                 if (whispering) {
                     receiver.sendMessage(color + player.getDisplayName() + " whispered: " + chat.substring(1));
+                } else if (shouting) {
+                    color = ChatColor.valueOf(shoutColor);
+                    receiver.sendMessage(color + player.getDisplayName() + " shouted: " + chat.substring(1));
                 } else {
                     receiver.sendMessage(color + player.getDisplayName() + ": " + chat);
                 }
@@ -224,7 +231,7 @@ public class ChatManager {
         Player player1 = Bukkit.getPlayer(player);
         Collection<Player> players = Citadel.getMemberManager().getOnlinePlayers();
         String chat = message.toString();
-        player1.sendMessage(ChatColor.DARK_AQUA + "To group" + group.getName() + ": " + chat);
+        player1.sendMessage(ChatColor.DARK_AQUA + "To group " + group.getName() + ": " + chat);
         for (Player reciever : players) {
             if (group.isMember(reciever.getName())
                     && group.isFounder(reciever.getName())
@@ -277,6 +284,13 @@ public class ChatManager {
             return null;
         }
 
+    }
+
+    public boolean isGroupTalk(String player) {
+        if (groupchat.containsKey(player)) {
+            return true;
+        }
+        return false;
     }
 
     public void removeGroupTalk(String player) {

@@ -190,6 +190,9 @@ public class CivChat extends JavaPlugin implements Listener {
         if (!config.contains("chat.shout.distanceAdded")) {
             config.set("chat.shout.distanceAdded", 300);
         }
+        if (!config.contains("chat.shout.color")) {
+            config.set("chat.shout.color", "WHITE");
+        }
         if (!config.contains("chat.shout.hungerreduced")) {
             config.set("chat.shout.hungerreduced", 4);
         }

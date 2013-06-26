@@ -50,6 +50,7 @@ public class Commands implements CommandExecutor {
                 if (ignoreList.containsKey(args[0])) {
                     List<String> temp = ignoreList.get(args[0]);
                     if (temp.contains(player.getName())) {
+                        player.sendMessage(ChatColor.RED + Bukkit.getPlayerExact(args[0]).getName() + " has muted you.");
                         return true;
                     }
                 }
@@ -78,12 +79,13 @@ public class Commands implements CommandExecutor {
                     if (ignoreList.containsKey(args[0])) {
                         List<String> temp = ignoreList.get(args[0]);
                         if (temp.contains(receiver.getName())) {
+                            player.sendMessage(ChatColor.RED + Bukkit.getPlayerExact(args[0]).getName() + " has muted you.");
                             return true;
                         }
                     }
                     StringBuilder message = new StringBuilder();
 
-                    for (int i = 1; i < args.length; i++) {
+                    for (int i = 0; i < args.length; i++) {
                         message.append(args[i]);
 
                         if (i < args.length - 1) {
@@ -117,6 +119,7 @@ public class Commands implements CommandExecutor {
                         if (ignoreList.containsKey(args[0])) {
                             List<String> temp = ignoreList.get(args[0]);
                             if (temp.contains(player)) {
+                                Bukkit.getPlayerExact(player).sendMessage(ChatColor.RED + Bukkit.getPlayerExact(args[0]).getName() + " has muted you.");
                                 return true;
                             }
                         }
@@ -131,11 +134,11 @@ public class Commands implements CommandExecutor {
                         }
 
                         String receiver = replyList.get(player);
-                        Bukkit.getPlayer(player).sendMessage(ChatColor.DARK_PURPLE + "To " + receiver + ": " + message);
-                        Bukkit.getPlayer(receiver).sendMessage(ChatColor.DARK_PURPLE + "From " + player + ": " + message);
+                        Bukkit.getPlayer(player).sendMessage(ChatColor.LIGHT_PURPLE + "To " + receiver + ": " + message);
+                        Bukkit.getPlayer(receiver).sendMessage(ChatColor.LIGHT_PURPLE + "From " + player + ": " + message);
                         chatManager.tL(Bukkit.getPlayerExact(player), "P Message", "To " + receiver + ": " + message.toString());
                     } else {
-                        Bukkit.getPlayer(player).sendMessage(ChatColor.DARK_PURPLE + "You will message " + ChatColor.YELLOW + replyList.get(player));
+                        Bukkit.getPlayer(player).sendMessage(ChatColor.LIGHT_PURPLE + "You will message " + ChatColor.YELLOW + replyList.get(player));
                     }
                 }
             } else {
@@ -192,6 +195,15 @@ public class Commands implements CommandExecutor {
         if (label.equalsIgnoreCase("groupchat") || label.equalsIgnoreCase("group") || label.equalsIgnoreCase("g")) {
 
             Player player = (Player) sender;
+            if (args.length < 1) {
+                if (chatManager.isGroupTalk(player.getName())) {
+                    sender.sendMessage(ChatColor.RED + "You have been moved to normal chat.");
+                    chatManager.removeGroupTalk(player.getName());
+                    return true;
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Usage: /groupchat [group name] <message>");
+                }
+            }
             StringBuilder message = new StringBuilder();
             Faction group = Citadel.getGroupManager().getGroup(args[0]);
             if (group == null) {
@@ -204,22 +216,18 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "You are not in that group.");
                 return true;
             }
-            if (args.length < 1) {
-                sender.sendMessage(ChatColor.RED + "You have been moved to normal chat.");
-                chatManager.removeGroupTalk(player.getName());
-                return true;
-            }
+
             if (args.length == 1) {
                 if (chatManager.getGroupTalk(player.getName()) == null) {
                     if (chatManager.getChannel(player.getName()) != null) {
                         sender.sendMessage(ChatColor.RED + "You were removed from private chat.");
                         chatManager.removeChannel(player.getName());
                     }
-                    sender.sendMessage(ChatColor.RED + "You have moved to group chat in the group: " + group + ".");
+                    sender.sendMessage(ChatColor.RED + "You have moved to group chat in the group: " + group.getName() + ".");
                     chatManager.addGroupTalk(sender.getName(), group);
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.RED + "You have been switched to group: " + group);
+                    sender.sendMessage(ChatColor.RED + "You have been switched to group: " + group.getName());
                     chatManager.removeGroupTalk(player.getName());
                     chatManager.addGroupTalk(player.getName(), group);
                     return true;
