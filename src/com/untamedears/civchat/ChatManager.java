@@ -85,9 +85,9 @@ public class ChatManager {
     }
 
     public void sendPrivateMessage(Player from, Player to, String message) {
-        if (isIgnoring(to.getName(), from.getName())) {
-            return;
-        }
+//        if (isIgnoring(to.getName(), from.getName())) {
+//            return;
+//        }
         from.sendMessage(ChatColor.LIGHT_PURPLE + "To " + to.getName() + ": " + message);
         to.sendMessage(ChatColor.LIGHT_PURPLE + "From " + from.getName() + ": " + message);
     }
@@ -333,20 +333,20 @@ public class ChatManager {
         return player;
     }
 
-    public boolean isIgnoring(String muter, String muted) {
-//        try {
-            if (commands.ignoreList.size()>0 && commands.ignoreList.containsKey(muter)) {
-                List<String> temp = commands.ignoreList.get(muter);
-                Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, temp.toString(), "");
-                if (temp.contains(muted)) {
-                    Bukkit.getPlayer(muted).sendMessage(ChatColor.RED + Bukkit.getPlayer(muter).getName() + " has muted you.");
-                    return true;
-                }
-            }
-//        } catch (NullPointerException e) {
-//            return false;
-//        }
-
-        return false;
-    }
+//    public boolean isIgnoring(String muter, String muted) {
+////        try {
+//            if (commands.ignoreList.containsKey(muter)) {
+//                List<String> temp = commands.ignoreList.get(muter);
+//                Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, temp.toString(), "");
+//                if (temp.contains(muted)) {
+//                    Bukkit.getPlayer(muted).sendMessage(ChatColor.RED + Bukkit.getPlayer(muter).getName() + " has muted you.");
+//                    return true;
+//                }
+//            }
+////        } catch (NullPointerException e) {
+////            return false;
+////        }
+//
+//        return false;
+//    }
 }
