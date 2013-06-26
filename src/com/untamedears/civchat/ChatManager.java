@@ -16,6 +16,7 @@ import com.untamedears.citadel.entity.Faction;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
  */
 public class ChatManager {
 
+    private Commands commands;
     private CivChat plugin = null;
     private FileConfiguration config;
     public double chatmax;
@@ -83,6 +85,9 @@ public class ChatManager {
     }
 
     public void sendPrivateMessage(Player from, Player to, String message) {
+        if (isIgnoring(to.getName(), from.getName())) {
+            return;
+        }
         from.sendMessage(ChatColor.LIGHT_PURPLE + "To " + to.getName() + ": " + message);
         to.sendMessage(ChatColor.LIGHT_PURPLE + "From " + from.getName() + ": " + message);
     }
@@ -121,7 +126,11 @@ public class ChatManager {
                         player.setSaturation(player.getSaturation() - sat);
                     }
                 } else {
-                    player.setFoodLevel(player.getFoodLevel() - shoutHunger);
+                    int food = player.getFoodLevel() - shoutHunger;
+                    if (food < 0) {
+                        food = 0;
+                    }
+                    player.setFoodLevel(food);
                 }
                 chatrange += shoutDist;
                 shoutList.put(player, System.currentTimeMillis());
@@ -312,5 +321,32 @@ public class ChatManager {
         } catch (IOException ex) {
             Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public String playerCheck(String player) {
+        Player[] onlineList = Bukkit.getOnlinePlayers();
+        for (Player check : onlineList) {
+            if (check.getName().startsWith(player)) {
+                return check.getName();
+            }
+        }
+        return player;
+    }
+
+    public boolean isIgnoring(String muter, String muted) {
+//        try {
+            if (commands.ignoreList.size()>0 && commands.ignoreList.containsKey(muter)) {
+                List<String> temp = commands.ignoreList.get(muter);
+                Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, temp.toString(), "");
+                if (temp.contains(muted)) {
+                    Bukkit.getPlayer(muted).sendMessage(ChatColor.RED + Bukkit.getPlayer(muter).getName() + " has muted you.");
+                    return true;
+                }
+            }
+//        } catch (NullPointerException e) {
+//            return false;
+//        }
+
+        return false;
     }
 }

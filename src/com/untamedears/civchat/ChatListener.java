@@ -63,11 +63,12 @@ public class ChatListener implements Listener {
             } else {
                 chat.removeChannel(player.getName());
                 player.sendMessage(ChatColor.GOLD + "The player you were chatting with has gone offline. You are now in regular chat.");
+                return;
             }
         }
-        if(group!=null){
-         chat.PrivateGroupChat(group, message, player.getName());
-         return;
+        if (group != null) {
+            chat.PrivateGroupChat(group, message, player.getName());
+            return;
         }
 
         chat.sendPlayerBroadcast(player, message, event.getRecipients());

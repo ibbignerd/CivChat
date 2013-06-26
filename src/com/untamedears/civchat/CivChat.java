@@ -29,7 +29,6 @@ public class CivChat extends JavaPlugin implements Listener {
     private FileConfiguration config = null;
     public File record = null;
     public BufferedWriter writer;
-    private String str;
 
     public void onEnable() {
         config = getConfig();

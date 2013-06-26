@@ -47,14 +47,11 @@ public class Commands implements CommandExecutor {
                 }
                 return true;
             } else if (args.length == 1) {
-                if (ignoreList.containsKey(args[0])) {
-                    List<String> temp = ignoreList.get(args[0]);
-                    if (temp.contains(player.getName())) {
-                        player.sendMessage(ChatColor.RED + Bukkit.getPlayerExact(args[0]).getName() + " has muted you.");
-                        return true;
-                    }
+                if (chatManager.isIgnoring(args[0], player.getName())) {
+                    return true;
                 }
-                Player receiver = Bukkit.getPlayerExact(args[0]);
+
+                Player receiver = Bukkit.getPlayer(chatManager.playerCheck(args[0]));
                 if (receiver == null) {
                     player.sendMessage(ChatColor.RED + "Error: Player is offline.");
                     return true;
@@ -70,22 +67,18 @@ public class Commands implements CommandExecutor {
             }
 
             if (args.length > 1) {
-                Player receiver = Bukkit.getPlayerExact(args[0]);
+                Player receiver = Bukkit.getPlayer(chatManager.playerCheck(args[0]));
 
                 if (receiver == null) {
                     sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
                     return true;
                 } else {
-                    if (ignoreList.containsKey(args[0])) {
-                        List<String> temp = ignoreList.get(args[0]);
-                        if (temp.contains(receiver.getName())) {
-                            player.sendMessage(ChatColor.RED + Bukkit.getPlayerExact(args[0]).getName() + " has muted you.");
-                            return true;
-                        }
+                    if (chatManager.isIgnoring(args[0], player.getName())) {
+                        return true;
                     }
                     StringBuilder message = new StringBuilder();
 
-                    for (int i = 0; i < args.length; i++) {
+                    for (int i = 1; i < args.length; i++) {
                         message.append(args[i]);
 
                         if (i < args.length - 1) {
@@ -94,7 +87,7 @@ public class Commands implements CommandExecutor {
                     }
                     chatManager.sendPrivateMessage(player, receiver, message.toString());
 
-                    chatManager.tL(player, "PM", "To " + receiver.getName() + ": " + message.toString());
+                    chatManager.tL(player, "P Message", "To " + receiver.getName() + ": " + message.toString());
                     replyList.put(player.getName(), receiver.getName());
                     return true;
                 }
@@ -108,7 +101,7 @@ public class Commands implements CommandExecutor {
                 return true;
             }
 
-            String player = sender.getName();
+            String player = chatManager.playerCheck(sender.getName());
             if (replyList.containsKey(player)) {
                 if (Bukkit.getPlayerExact(replyList.get(player)) == null) {
                     sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
@@ -116,16 +109,13 @@ public class Commands implements CommandExecutor {
                     return true;
                 } else {
                     if (args.length > 0) {
-                        if (ignoreList.containsKey(args[0])) {
-                            List<String> temp = ignoreList.get(args[0]);
-                            if (temp.contains(player)) {
-                                Bukkit.getPlayerExact(player).sendMessage(ChatColor.RED + Bukkit.getPlayerExact(args[0]).getName() + " has muted you.");
-                                return true;
-                            }
+                        String receiver = replyList.get(player);
+                        if (chatManager.isIgnoring(player, receiver)) {
+                            return true;
                         }
                         StringBuilder message = new StringBuilder();
 
-                        for (int i = 1; i < args.length; i++) {
+                        for (int i = 0; i < args.length; i++) {
                             message.append(args[i]);
 
                             if (i < args.length - 1) {
@@ -133,7 +123,7 @@ public class Commands implements CommandExecutor {
                             }
                         }
 
-                        String receiver = replyList.get(player);
+
                         Bukkit.getPlayer(player).sendMessage(ChatColor.LIGHT_PURPLE + "To " + receiver + ": " + message);
                         Bukkit.getPlayer(receiver).sendMessage(ChatColor.LIGHT_PURPLE + "From " + player + ": " + message);
                         chatManager.tL(Bukkit.getPlayerExact(player), "P Message", "To " + receiver + ": " + message.toString());
@@ -202,6 +192,7 @@ public class Commands implements CommandExecutor {
                     return true;
                 } else {
                     sender.sendMessage(ChatColor.RED + "Usage: /groupchat [group name] <message>");
+                    return true;
                 }
             }
             StringBuilder message = new StringBuilder();
@@ -250,7 +241,7 @@ public class Commands implements CommandExecutor {
             return true;
         }
 
-        if (label.equalsIgnoreCase("ignore") || label.equalsIgnoreCase("ig")) {
+        if (label.equalsIgnoreCase("ignore") || label.equalsIgnoreCase("ig")) {//completely broken
             if (!(sender instanceof Player)) {
                 sender.sendMessage("You have to be a player to use that command!");
                 return true;
@@ -260,26 +251,27 @@ public class Commands implements CommandExecutor {
                 sender.sendMessage("Usage: /ignore <player>");
                 return true;
             } else if (args.length > 0) {
-                if (!ignoreList.containsKey(sender.getName())) {
-                    if (Bukkit.getPlayer(args[0]) == null) {
+                Player receiver = Bukkit.getPlayer(chatManager.playerCheck(args[0]));
+                if (!ignoreList.containsKey(sender.getName())) {//if sender doesn't have a record
+                    if (receiver == null) {
                         sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
                         return true;
                     }
-                    List<String> toAdd = Arrays.asList(args[0]);
+                    List<String> toAdd = Arrays.asList(receiver.getName());
                     ignoreList.put(sender.getName(), toAdd);
-                    sender.sendMessage(ChatColor.RED + args[0] + ChatColor.YELLOW + " can no longer PM you");
-                } else {
+                    sender.sendMessage(ChatColor.RED + receiver.getName() + ChatColor.YELLOW + " can no longer PM you");
+                } else {//if sender does have a record
                     List<String> temp = ignoreList.get(sender.getName());
-                    List<String> toAdd = new LinkedList<>(Arrays.asList(args[0]));
-//                    List<String> toAdd = Arrays.asList();
-                    if (toAdd.contains(args[0])) {
-                        toAdd.remove(args[0]);
-                        sender.sendMessage(ChatColor.GREEN + args[0] + ChatColor.YELLOW + " can now PM you");
+                    temp.add(temp.size(), receiver.getName());
+                    if (temp.contains(receiver.getName())) {
+                        temp.remove(receiver.getName());
+                        ignoreList.put(sender.getName(), temp);
+                        sender.sendMessage(ChatColor.GREEN + receiver.getName() + ChatColor.YELLOW + " can now PM you");
                         return true;
                     } else {
-                        toAdd.add(temp.toString());
-                        ignoreList.put(sender.getName(), toAdd);
-                        sender.sendMessage(ChatColor.RED + args[0] + ChatColor.YELLOW + " can no longer PM you");
+                        temp.add(receiver.getName());
+                        ignoreList.put(sender.getName(), temp);
+                        sender.sendMessage(ChatColor.RED + receiver.getName() + ChatColor.YELLOW + " can no longer PM you");
                         return true;
                     }
                 }
