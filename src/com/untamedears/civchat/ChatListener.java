@@ -58,6 +58,10 @@ public class ChatListener implements Listener {
             Player to = Bukkit.getPlayerExact(channel);
 
             if (to != null) {
+                if(chat.isIgnoring(channel, player.getName())){
+                    player.sendMessage(ChatColor.YELLOW + channel + ChatColor.RED + " has muted you.");
+                    return;
+                }
                 chat.sendPrivateMessage(player, to, message);
                 return;
             } else {

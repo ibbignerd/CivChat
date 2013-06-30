@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * Coded by ibbignerd
  */
 public class ChatManager {
-
+    private List<String> temp;
     private Commands commands;
     private CivChat plugin = null;
     private FileConfiguration config;
@@ -85,9 +85,10 @@ public class ChatManager {
     }
 
     public void sendPrivateMessage(Player from, Player to, String message) {
-//        if (isIgnoring(to.getName(), from.getName())) {
-//            return;
-//        }
+        if (isIgnoring(to.getName(), from.getName())) {
+            from.sendMessage(ChatColor.YELLOW + to.getName() + ChatColor.RED + " has muted you.");
+            return;
+        }
         from.sendMessage(ChatColor.LIGHT_PURPLE + "To " + to.getName() + ": " + message);
         to.sendMessage(ChatColor.LIGHT_PURPLE + "From " + from.getName() + ": " + message);
     }
@@ -193,7 +194,7 @@ public class ChatManager {
         }
     }
 
-    public String shuffle(String input, double a) {
+    private String shuffle(String input, double a) {
         int times = (int) a;
         Random random = new Random();
         StringBuilder sb = new StringBuilder(input);
@@ -242,7 +243,7 @@ public class ChatManager {
         String chat = message.toString();
         player1.sendMessage(ChatColor.DARK_AQUA + "To group " + group.getName() + ": " + chat);
         for (Player reciever : players) {
-            if (group.isMember(reciever.getName())
+            if (!group.isMember(reciever.getName())
                     && group.isFounder(reciever.getName())
                     && group.isModerator(reciever.getName())) {
                 continue;
@@ -309,7 +310,7 @@ public class ChatManager {
     }
 
     public void tL(Player sender, String type, String message) {
-        String date = new SimpleDateFormat("dd-MM HH:MM:ss").format(new Date());
+        String date = new SimpleDateFormat("dd-MM HH:mm:ss").format(new Date());
         String name = sender.getName();
         String loc = (int) sender.getLocation().getX() + ", " + (int) sender.getLocation().getY() + ", " + (int) sender.getLocation().getZ();
         String textLine = "[" + date + "] [" + loc + "] [" + type + "] [" + name + "] " + message;
@@ -333,20 +334,20 @@ public class ChatManager {
         return player;
     }
 
-//    public boolean isIgnoring(String muter, String muted) {
-////        try {
-//            if (commands.ignoreList.containsKey(muter)) {
-//                List<String> temp = commands.ignoreList.get(muter);
-//                Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, temp.toString(), "");
-//                if (temp.contains(muted)) {
-//                    Bukkit.getPlayer(muted).sendMessage(ChatColor.RED + Bukkit.getPlayer(muter).getName() + " has muted you.");
-//                    return true;
-//                }
-//            }
-////        } catch (NullPointerException e) {
-////            return false;
-////        }
-//
-//        return false;
-//    }
+    public boolean isIgnoring(String muter, String muted) {
+        try {
+            if (commands.ignoreList.containsKey(muter)) {
+                temp = commands.ignoreList.get(muter);
+                Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, temp.toString(), "");
+                if (temp.contains(muted)) {
+                    Bukkit.getPlayer(muted).sendMessage(ChatColor.RED + Bukkit.getPlayer(muter).getName() + " has muted you.");
+                    return true;
+                }
+            }
+        } catch (NullPointerException e) {
+            return false;
+        }
+
+        return false;
+    }
 }

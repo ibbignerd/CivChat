@@ -24,7 +24,7 @@ public class Commands implements CommandExecutor {
     private CivChat civ;
     private ChatManager chatManager;
     private HashMap<String, String> replyList = new HashMap<>();
-//    public HashMap<String, List<String>> ignoreList = new HashMap<>();
+    public HashMap<String, List<String>> ignoreList = new HashMap<>();
 
     public Commands(ChatManager chatManagerInstance, CivChat instance) {
         chatManager = chatManagerInstance;
@@ -49,10 +49,6 @@ public class Commands implements CommandExecutor {
                 }
                 return true;
             } else if (args.length == 1) {
-//                if (chatManager.isIgnoring(args[0], player.getName())) {
-//                    return true;
-//                }
-
                 Player receiver = Bukkit.getPlayer(chatManager.playerCheck(args[0]));
                 if (receiver == null) {
                     player.sendMessage(ChatColor.RED + "Error: Player is offline.");
@@ -75,9 +71,6 @@ public class Commands implements CommandExecutor {
                     sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
                     return true;
                 } else {
-//                    if (chatManager.isIgnoring(args[0], player.getName())) {
-//                        return true;
-//                    }
                     StringBuilder message = new StringBuilder();
 
                     for (int i = 1; i < args.length; i++) {
@@ -112,9 +105,10 @@ public class Commands implements CommandExecutor {
                 } else {
                     if (args.length > 0) {
                         String receiver = replyList.get(player);
-//                        if (chatManager.isIgnoring(player, receiver)) {
-//                            return true;
-//                        }
+                        if (chatManager.isIgnoring(player, receiver)) {
+                            sender.sendMessage(ChatColor.YELLOW + receiver + ChatColor.RED + " has muted you.");
+                            return true;
+                        }
                         StringBuilder message = new StringBuilder();
 
                         for (int i = 0; i < args.length; i++) {
@@ -243,46 +237,46 @@ public class Commands implements CommandExecutor {
             return true;
         }
 
-//        if (label.equalsIgnoreCase("ignore") || label.equalsIgnoreCase("ig")) {//completely broken
-//            if (!(sender instanceof Player)) {
-//                sender.sendMessage("You have to be a player to use that command!");
-//                return true;
-//            }
-//
-//            if (args.length == 0) {
-//                sender.sendMessage("Usage: /ignore <player>");
-//                return true;
-//            } else if (args.length > 0) {
-//                Player receiver = Bukkit.getPlayer(chatManager.playerCheck(args[0]));
-//                if (!ignoreList.containsKey(sender.getName())) {//if sender doesn't have a record
-//                    if (receiver == null) {
-//                        sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
-//                        return true;
-//                    }
-//                    List<String> toAdd = Arrays.asList(receiver.getName());
-//                    ignoreList.put(sender.getName(), toAdd);
-//                    Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, toAdd + "", "");
-//                    sender.sendMessage(ChatColor.RED + receiver.getName() + ChatColor.YELLOW + " can no longer PM you");
-//                } else {//if sender does have a record
-//                    List<String> temp = ignoreList.get(sender.getName());
-//                    temp.add(temp.size(), receiver.getName());
-//                    if (temp.contains(receiver.getName())) {
-//                        temp.remove(receiver.getName());
-//                        ignoreList.put(sender.getName(), temp);
-//                        Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, temp + "", "");
-//                        sender.sendMessage(ChatColor.GREEN + receiver.getName() + ChatColor.YELLOW + " can now PM you");
-//                        return true;
-//                    } else {
-//                        temp.add(receiver.getName());
-//                        ignoreList.put(sender.getName(), temp);
-//                        sender.sendMessage(ChatColor.RED + receiver.getName() + ChatColor.YELLOW + " can no longer PM you");
-//                        return true;
-//                    }
-//                }
-//
-//            }
-//            return true;
-//        }
+        if (label.equalsIgnoreCase("ignore") || label.equalsIgnoreCase("ig")) {//completely broken
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("You have to be a player to use that command!");
+                return true;
+            }
+
+            if (args.length == 0) {
+                sender.sendMessage("Usage: /ignore <player>");
+                return true;
+            } else if (args.length > 0) {
+                Player receiver = Bukkit.getPlayer(chatManager.playerCheck(args[0]));
+                if (!ignoreList.containsKey(sender.getName())) {//if sender doesn't have a record
+                    if (receiver == null) {
+                        sender.sendMessage(ChatColor.RED + "Error: Player is offline.");
+                        return true;
+                    }
+                    List<String> toAdd = Arrays.asList(receiver.getName());
+                    ignoreList.put(sender.getName(), toAdd);
+                    Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, toAdd + "", "");
+                    sender.sendMessage(ChatColor.RED + receiver.getName() + ChatColor.YELLOW + " can no longer PM you");
+                } else {//if sender does have a record
+                    List<String> temp = ignoreList.get(sender.getName());
+                    temp.add(temp.size(), receiver.getName());
+                    if (temp.contains(receiver.getName())) {
+                        temp.remove(receiver.getName());
+                        ignoreList.put(sender.getName(), temp);
+                        Logger.getLogger(CivChat.class.getName()).log(Level.SEVERE, temp + "", "");
+                        sender.sendMessage(ChatColor.GREEN + receiver.getName() + ChatColor.YELLOW + " can now PM you");
+                        return true;
+                    } else {
+                        temp.add(receiver.getName());
+                        ignoreList.put(sender.getName(), temp);
+                        sender.sendMessage(ChatColor.RED + receiver.getName() + ChatColor.YELLOW + " can no longer PM you");
+                        return true;
+                    }
+                }
+
+            }
+            return true;
+        }
 
         if (label.equalsIgnoreCase("chat") || label.equalsIgnoreCase("chathelp") || label.equalsIgnoreCase("ch")) {
             String chatPrefix = ChatColor.DARK_RED + "===" + ChatColor.YELLOW + "CivChat" + ChatColor.DARK_RED + "=========================\n";
